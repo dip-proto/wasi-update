@@ -42,6 +42,27 @@ jobs:
           name: wasi-update-win-aarch64
           path: wasi-update_${{ github.ref_name }}_windows-aarch64.zip
 
+  build-on-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hecrj/setup-rust-action@v2
+        with:
+          rust-version: stable
+
+      - run: |
+          rustup target add aarch64-apple-darwin
+          make CARGO_FLAGS="--target aarch64-apple-darwin"
+          install -d wasi-update
+          install bin/wasi-update* wasi-update/
+          tar cjpf wasi-update_${{ github.ref_name }}_macos-aarch64.tar.bz2 wasi-update
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wasi-update-macos-aarch64
+          path: wasi-update_${{ github.ref_name }}_macos-aarch64.tar.bz2
+
   build-on-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -128,5 +149,6 @@ jobs:
             wasi-update-linux-x86_64/*.tar.bz2
             wasi-update-linux-aarch64/*.tar.bz2
             wasi-update-wasm32-wasi/*.tar.bz2
+            wasi-update-macos-aarch64/*.tar.bz2
             wasi-update-win-x86_64/*.zip
             wasi-update-win-aarch64/*.zip
