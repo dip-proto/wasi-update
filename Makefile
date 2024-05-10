@@ -1,4 +1,7 @@
 bin/wasi-update: src/src/precomp/wasi_snapshot_preview1.command.wasm src/src/precomp/wasi_snapshot_preview1.reactor.wasm src/Cargo.toml src/src/main.rs
+	echo -- -----------
+	env
+	echo XXX: cargo build --release $$CARGO_FLAGS
 	cd src && cargo build --release $$CARGO_FLAGS
 	@ echo
 	@ install -d bin
