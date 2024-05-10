@@ -6,106 +6,31 @@ on:
       - "*"
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-20.04, windows-latest, macos-latest]
-        include:
-          - os: ubuntu-20.04
-            target: x86_64-unknown-linux-gnu
-            target_alias: linux-x86_64
-            bin_suffix: ''
-            archive_suffix: '.tar.bz2'
-          - os: ubuntu-20.04
-            target: aarch64-unknown-linux-gnu
-            target_alias: linux-aarch64
-            bin_suffix: ''
-            archive_suffix: '.tar.bz2'
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            target_alias: win-x86_64
-            bin_suffix: '.exe'
-            archive_suffix: '.zip'
-          - os: windows-latest
-            target: aarch64-pc-windows-msvc
-            target_alias: win-aarch64
-            bin_suffix: '.exe'
-            archive_suffix: '.zip'
-          - os: macos-latest
-            target: aarch64-apple-darwin
-            target_alias: macos-aarch64
-            bin_suffix: ''
-            archive_suffix: '.zip'
-    defaults:
-      run:
-        shell: bash
-    env:
-      ARCHIVE_PATH: wasi-update_${{ github.ref_name }}_${{ matrix.target_alias }}${{ matrix.archive_suffix }}
-
+  build-linux-x86_64:
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install Zig
+        uses: goto-bus-stop/setup-zig@2a9625d550eefc3a9b1a43d342ad655f563f8241
+        with:
+          version: 0.12
 
       - uses: hecrj/setup-rust-action@v2
         with:
           rust-version: stable
-          targets: ${{ matrix.target }}
 
-      - name: Check Cargo availability
-        run: cargo --version
+      - run:
+          cargo install cargo-zigbuild
 
-      - name: Check Rustup default toolchain
-        run: rustup default | grep stable
+          rustup target add x86_64-unknown-linux-gnu
+          make CARGO_FLAGS="--target x86_64-unknown-linux-gnu"
+          tar cjpf wasi-update_${{ github.ref_name }}_linux-x86_64.tar.bz2 wasi-update
 
-      - name: Build
-        run: |
-          make
-          install -d wasi-update
-          install bin/wasi-update* wasi-update/
-          if [ "${{ matrix.os }}" = "ubuntu-20.04" ]; then
-            tar cjpf ${ARCHIVE_PATH} wasi-update
-          elif [ "${{ matrix.os }}" = "windows-latest" ]; then
-            "/C/Program Files/7-Zip/7z" a ${ARCHIVE_PATH} wasi-update
-          fi
+          rustup target add aarch64-unknown-linux-gnu
+          make CARGO_FLAGS="--target aarch64-unknown-linux-gnu"
+          tar cjpf wasi-update_${{ github.ref_name }}_linux-aarch64.tar.bz2 wasi-update
 
-      - name: Install cargo-deb and build Debian package
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
-        run: |
-          cargo install cargo-deb
-          cd src && cargo deb --output=../wasi-update_${{ github.ref_name }}_amd64.deb --no-build
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: wasi-update_${{ matrix.target_alias }}
-          path: ${{ env.ARCHIVE_PATH }}
-
-      - uses: actions/upload-artifact@v4
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
-        with:
-          name: wasi-update_deb-amd64
-          path: wasi-update_${{ github.ref_name }}_amd64.deb
-
-  release:
-    if: startsWith(github.ref, 'refs/tags/')
-    needs:
-      - build
-    runs-on: ubuntu-20.04
-
-    steps:
-      - uses: actions/download-artifact@v4
-
-      - name: Create release
-        uses: softprops/action-gh-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          name: Release ${{ github.ref_name }}
-          draft: true
-          prerelease: false
-          files: |
-            wasi-update_deb-amd64/*.deb
-            wasi-update_linux-x86_64/*.tar.bz2
-            wasi-update_linux-aarch64/*.tar.bz2
-            wasi-update_win-x86_64/*.zip
-            wasi-update_win-aarch64/*.zip
-            wasi-update_macos-aarch64/*.zip
+          rustup target add wasm32-wasi
+          make CARGO_FLAGS="--target wasm32-wasi"
+          tar cjpf wasi-update_${{ github.ref_name }}_wasm32-wasi.tar.bz2 wasi-update
