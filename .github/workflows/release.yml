@@ -21,7 +21,7 @@ jobs:
             target: aarch64-unknown-linux-gnu
             target_alias: linux-aarch64
             bin_suffix: ''
-            archive_suffix: '.tar.bz2'            
+            archive_suffix: '.tar.bz2'
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             target_alias: win-x86_64
@@ -31,7 +31,7 @@ jobs:
             target: aarch64-pc-windows-msvc
             target_alias: win-aarch64
             bin_suffix: '.exe'
-            archive_suffix: '.zip'          
+            archive_suffix: '.zip'
           - os: macos-latest
             target: aarch64-apple-darwin
             target_alias: macos-aarch64
