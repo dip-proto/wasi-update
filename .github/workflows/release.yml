@@ -6,7 +6,7 @@ on:
       - "*"
 
 jobs:
-  build-linux-x86_64:
+  build:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
@@ -22,6 +22,8 @@ jobs:
 
       - run:
           cargo install cargo-zigbuild
+
+          rustup target add wasm32-unknown-unknown
 
           rustup target add x86_64-unknown-linux-gnu
           make CARGO_FLAGS="--target x86_64-unknown-linux-gnu"

@@ -1,4 +1,5 @@
 bin/wasi-update: src/src/precomp/wasi_snapshot_preview1.command.wasm src/src/precomp/wasi_snapshot_preview1.reactor.wasm src/Cargo.toml src/src/main.rs
+	echo "CARGO_FLAGS=$(CARGO_FLAGS)"	
 	cd src && if which cargo-zigbuild ; then cargo-zigbuild build --release $$CARGO_FLAGS ; else cargo build --release $$CARGO_FLAGS ; fi
 	@ echo
 	@ install -d bin
