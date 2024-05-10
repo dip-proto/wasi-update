@@ -26,13 +26,22 @@ jobs:
           rustup target add wasm32-unknown-unknown
 
           rustup target add x86_64-unknown-linux-gnu
+          make clean
           make CARGO_FLAGS="--target x86_64-unknown-linux-gnu"
+          install -d wasi-update
+          install bin/wasi-update* wasi-update/          
           tar cjpf wasi-update_${{ github.ref_name }}_linux-x86_64.tar.bz2 wasi-update
 
           rustup target add aarch64-unknown-linux-gnu
+          make clean
           make CARGO_FLAGS="--target aarch64-unknown-linux-gnu"
+          install -d wasi-update
+          install bin/wasi-update* wasi-update/          
           tar cjpf wasi-update_${{ github.ref_name }}_linux-aarch64.tar.bz2 wasi-update
 
           rustup target add wasm32-wasi
+          make clean
           make CARGO_FLAGS="--target wasm32-wasi"
+          install -d wasi-update
+          install bin/wasi-update* wasi-update/          
           tar cjpf wasi-update_${{ github.ref_name }}_wasm32-wasi.tar.bz2 wasi-update
