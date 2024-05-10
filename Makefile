@@ -3,10 +3,7 @@ bin/wasi-update: src/src/precomp/wasi_snapshot_preview1.command.wasm src/src/pre
 	cd src && if which cargo-zigbuild ; then cargo-zigbuild build --release $$CARGO_FLAGS ; else cargo build --release $$CARGO_FLAGS ; fi
 	@ echo
 	@ install -d bin
-	-@ install -s src/target/release/wasi-update bin/ 2>/dev/null ||:
-	-@ install -s src/target/release/wasi-update.exe bin/ 2>/dev/null ||:
-	-@ install -s src/target/*/release/wasi-update bin/ 2>/dev/null ||:
-	-@ install -s src/target/*/release/wasi-update.exe bin/ 2>/dev/null ||:
+	@ find src/target -type f \( -name 'wasi-update' -o -name 'wasi-update.exe' -o -name 'wasi-update.wasm' \) -print -exec install -s {} bin/ \;
 	ls -l bin/wasi-update*
 	@ echo
 	bin/wasi-update --help 2> /dev/null
