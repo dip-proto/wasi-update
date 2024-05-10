@@ -4,7 +4,7 @@ bin/wasi-update: src/src/precomp/wasi_snapshot_preview1.command.wasm src/src/pre
 	@ echo
 	@ install -d bin
 	@ find src/target -type f \( -name 'wasi-update' -o -name 'wasi-update.exe' -o -name 'wasi-update.wasm' \) -print -exec install {} bin/ \;
-	@ strip bin/wasi-update
+	-@ strip bin/wasi-update 2> /dev/null
 	ls -l bin/wasi-update*
 	@ echo
 	bin/wasi-update --help 2> /dev/null
