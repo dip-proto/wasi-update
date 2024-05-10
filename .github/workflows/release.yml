@@ -6,7 +6,33 @@ on:
       - "*"
 
 jobs:
-  build:
+  builds-on-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hecrj/setup-rust-action@v2
+        with:
+          rust-version: stable
+
+      - run: |
+          rustup target add wasm32-unknown-unknown
+
+          rustup target add x86_64-pc-windows-msvc
+          make clean-app
+          make CARGO_FLAGS="--target x86_64-pc-windows-msvc"
+          install -d wasi-update
+          install bin/wasi-update* wasi-update/
+          "/C/Program Files/7-Zip/7z" a -mx=9 wasi-update_${{ github.ref_name }}_windows-x86_64.zip wasi-update
+
+          rustup target add aarch64-pc-windows-msvc
+          make clean-app
+          make CARGO_FLAGS="--target aarch64-pc-windows-msvc"
+          install -d wasi-update
+          install bin/wasi-update* wasi-update/
+          "/C/Program Files/7-Zip/7z" a -mx=9 wasi-update_${{ github.ref_name }}_windows-aarch64.zip wasi-update
+
+  build-on-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
