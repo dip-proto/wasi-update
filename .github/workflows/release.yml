@@ -31,7 +31,17 @@ jobs:
           install -d wasi-update
           install bin/wasi-update* wasi-update/
           7z a -mx=9 wasi-update_${{ github.ref_name }}_windows-aarch64.zip wasi-update
-          
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wasi-update-win-x86_64
+          path: wasi-update_${{ github.ref_name }}_windows-x86_64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wasi-update-win-aarch64
+          path: wasi-update_${{ github.ref_name }}_windows-aarch64.zip
+
   build-on-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -51,7 +61,7 @@ jobs:
 
           rustup target add wasm32-unknown-unknown
           cargo install cargo-deb
-          
+
           make
           ( cd src && cargo deb --output=../wasi-update_${{ github.ref_name }}_amd64.deb --no-build )
 
@@ -88,17 +98,22 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
+          name: wasi-update-wasm32-wasi
+          path: wasi-update_${{ github.ref_name }}_wasm32-wasi.tar.bz2
+
+      - uses: actions/upload-artifact@v4
+        with:
           name: wasi-update-deb-linux-x86_64
           path: wasi-update_${{ github.ref_name }}_amd64.deb
 
   release:
     needs:
       - build-on-linux
-      - builds-on-windows    
-    runs-on: ubuntu-latest    
+      - builds-on-windows
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
-    
+
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v2
@@ -112,5 +127,6 @@ jobs:
             wasi-update-deb-linux-x86_64/*.deb
             wasi-update-linux-x86_64/*.tar.bz2
             wasi-update-linux-aarch64/*.tar.bz2
+            wasi-update-wasm32-wasi/*.tar.bz2
             wasi-update-win-x86_64/*.zip
             wasi-update-win-aarch64/*.zip
