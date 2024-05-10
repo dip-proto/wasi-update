@@ -20,7 +20,7 @@ jobs:
         with:
           rust-version: stable
 
-      - run:
+      - run: |
           cargo install cargo-zigbuild
 
           rustup target add wasm32-unknown-unknown
